@@ -1,7 +1,7 @@
 # ci-nix-build
 
-`nix-build` by default will re-build all packages, resulting
-in unnecessary downloads even if no package has been changed.
+`nix-build` by default will download already built packages, resulting in
+unnecessary downloads even if no package has been changed.
 Ci-nix-build will only build packages not yet in binary caches.
 
 ## USAGE

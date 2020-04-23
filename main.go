@@ -59,8 +59,7 @@ func missingPackages(path string) (map[string]bool, error) {
 	scanner.Split(bufio.ScanLines)
 
 	found := false
-	var missingDrvs map[string]bool
-	missingDrvs = make(map[string]bool)
+	missingDrvs := make(map[string]bool)
 	for scanner.Scan() {
 		line := scanner.Text()
 		if strings.HasPrefix(line, "these paths will be fetched") || strings.HasPrefix(line, "don't know how to build these paths") {

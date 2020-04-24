@@ -1,27 +1,27 @@
-# ci-nix-build
+# nix-build-uncached
 
 `nix-build` by default will download already built packages, resulting in
 unnecessary downloads even if no package has been changed.
-Ci-nix-build will only build packages not yet in binary caches.
+Nix-build-uncached will only build packages not yet in binary caches.
 
 ## USAGE
 
 Pass a file with the nix expressions you want to build.
 
 ```console
-$ ci-nix-build ./ci.nix
+$ nix-build-uncached ./ci.nix
 ```
 
-As a result `ci-nix-build` will built all packages,
+As a result `nix-build-uncached` will built all packages,
 not present in the binary cache.
 
 ```
-$ nix-env -f ../nur-packages/non-broken.nix --drv-path -qaP * --xml --meta
-$ nix-build --dry-run ../nur-packages/non-broken.nix
+$ nix-env -f ./ci.nix --drv-path -qaP * --xml --meta
+$ nix-build --dry-run ./ci.nix.nix
 /nix/store/j68qphj95cx65xsxadgmy9wa08dlbjrq-hello-2.10.drv
 1/40 attribute(s) will be built:
   hello-nur
-$ nix-build ../nur-packages/non-broken.nix -k -A hello-nur
+$ nix-build ./ci.nix -k -A hello-nur
 these derivations will be built:
   /nix/store/j68qphj95cx65xsxadgmy9wa08dlbjrq-hello-2.10.drv
 building '/nix/store/j68qphj95cx65xsxadgmy9wa08dlbjrq-hello-2.10.drv' on 'ssh://nix@martha.r'...

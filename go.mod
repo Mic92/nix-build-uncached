@@ -1,3 +1,3 @@
-module github.com/Mic92/ci-nix-build
+module github.com/Mic92/nix-build-uncached
 
 go 1.14

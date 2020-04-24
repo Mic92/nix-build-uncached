@@ -1,18 +1,18 @@
 { pkgs ? import <nixpkgs> {} }:
 with pkgs;
 buildGoPackage {
-  pname = "ci-nix-build";
+  pname = "nix-build-uncached";
   version = "0.0.0";
   src = ./.;
 
   nativeBuildInputs = [ makeWrapper ];
 
   postInstall = ''
-    wrapProgram $bin/bin/ci-nix-build \
+    wrapProgram $bin/bin/nix-build-uncached \
       --prefix PATH ":" ${lib.makeBinPath [ nix ]}
   '';
 
-  goPackagePath = "github.com/Mic92/ci-nix-build";
+  goPackagePath = "github.com/Mic92/nix-build-uncached";
 
   shellHook = ''
     unset GOROOT GOPATH

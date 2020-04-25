@@ -10,3 +10,7 @@ jobs:
     - uses: cachix/install-nix-action@v7
     - run:
         nix-build
+    - run:
+        nix-shell --run './test/test.sh'
+    - run:
+        nix run nixpkgs.gox -c gox .

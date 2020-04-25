@@ -4,10 +4,13 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/xml"
+	"flag"
 	"fmt"
 	"os"
 	"os/exec"
 	"strings"
+
+	shellquote "github.com/kballard/go-shellquote"
 )
 
 type Item struct {
@@ -32,8 +35,10 @@ func Command(cmd string, args ...string) *exec.Cmd {
 	return c
 }
 
-func nixEnv(path string) ([]Item, error) {
-	cmd := Command("nix-env", "-f", path, "--drv-path", "-qaP", "*", "--xml", "--meta")
+func nixEnv(path string, extraArgs []string) ([]Item, error) {
+	args := []string{"-f", path, "--drv-path", "-qaP", "*", "--xml", "--meta"}
+	args = append(args, extraArgs...)
+	cmd := Command("nix-env", args...)
 	var out bytes.Buffer
 	cmd.Stdout = &out
 	if err := cmd.Run(); err != nil {
@@ -47,9 +52,11 @@ func nixEnv(path string) ([]Item, error) {
 	return items.Items, nil
 }
 
-func missingPackages(path string) (map[string]bool, error) {
+func missingPackages(path string, extraArgs []string) (map[string]bool, error) {
 	var out bytes.Buffer
-	cmd := Command("nix-build", "--dry-run", path)
+	args := []string{"--dry-run", path}
+	args = append(args, extraArgs...)
+	cmd := Command("nix-build", args...)
 	cmd.Stderr = &out
 	if err := cmd.Run(); err != nil {
 		return nil, err
@@ -78,13 +85,12 @@ func missingPackages(path string) (map[string]bool, error) {
 
 }
 
-func nixBuild(path string, attrs []string) error {
-	buildArgs := []string{path}
-	for _, attr := range attrs {
-		buildArgs = append(buildArgs, "-k", "-A", attr)
-	}
+func nixBuild(path string, attrs []string, extraArgs []string) error {
+	args := []string{"build", "-f", path}
+	args = append(args, attrs...)
+	args = append(args, extraArgs...)
 
-	cmd := Command("nix-build", buildArgs...)
+	cmd := Command("nix", args...)
 	return cmd.Run()
 }
 
@@ -93,19 +99,15 @@ func die(format string, a ...interface{}) {
 	os.Exit(1)
 }
 
-func main() {
-	args := os.Args
-	if len(args) < 2 {
-		die("USAGE: %s path\n", args[0])
-	}
-	path := args[1]
-	items, err := nixEnv(path)
+func buildUncached(path string, evalArgs []string, buildArgs []string) {
+	items, err := nixEnv(path, evalArgs)
 	if err != nil {
-		die("%s", err)
+		die("%s\n", err)
 	}
-	missingDrvs, err := missingPackages(path)
+
+	missingDrvs, err := missingPackages(path, evalArgs)
 	if err != nil {
-		die("%s", err)
+		die("%s\n", err)
 	}
 	var missingAttrs []string
 
@@ -121,7 +123,33 @@ func main() {
 	if len(missingAttrs) == 0 {
 		return
 	}
-	if err := nixBuild(path, missingAttrs); err != nil {
-		die("nix-build failed: %s", err)
+	if err := nixBuild(path, missingAttrs, buildArgs); err != nil {
+		die("nix-build failed: %s\n", err)
 	}
+
+}
+
+func main() {
+	args := flag.String("args", "", "additional arguments to pass to both nix-env/nix build")
+	rawBuildArgs := flag.String("build-args", "--keep-going", "additional arguments to pass to both nix build")
+
+	flag.Parse()
+	paths := flag.Args()
+	fmt.Println(paths)
+	if len(paths) != 1 {
+		die("USAGE: %s path\n", os.Args[0])
+	}
+	path := paths[0]
+	evalArgs, err := shellquote.Split(*args)
+	if err != nil {
+		die("Value passed to -args is not valid: %s\n", err)
+	}
+	buildArgs, err := shellquote.Split(*rawBuildArgs)
+	if err != nil {
+		die("Value passed to -build-args is not valid: %s\n", err)
+	}
+
+	buildArgs = append(evalArgs, buildArgs...)
+
+	buildUncached(path, evalArgs, buildArgs)
 }

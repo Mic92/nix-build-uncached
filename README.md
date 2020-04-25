@@ -1,5 +1,7 @@
 # nix-build-uncached
 
+![Test](https://github.com/Mic92/nix-build-uncached/workflows/Test/badge.svg)
+
 `nix-build` by default will download already built packages, resulting in
 unnecessary downloads even if no package has been changed.
 Nix-build-uncached will only build packages not yet in binary caches.

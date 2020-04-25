@@ -10,7 +10,7 @@ buildGoModule {
   nativeBuildInputs = [ makeWrapper ];
 
   postInstall = ''
-    wrapProgram $bin/bin/nix-build-uncached \
+    wrapProgram $out/bin/nix-build-uncached \
       --prefix PATH ":" ${lib.makeBinPath [ nix ]}
   '';
 

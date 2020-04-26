@@ -2,7 +2,7 @@
 with pkgs;
 buildGoModule {
   pname = "nix-build-uncached";
-  version = "0.0.0";
+  version = "0.1.0";
   src = ./.;
 
   modSha256 = "1fl0wb1xj4v4whqm6ivzqjpac1iwpq7m12g37gr4fpgqp8kzi6cn";

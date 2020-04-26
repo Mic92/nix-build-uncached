@@ -6,8 +6,10 @@ import (
 	"encoding/xml"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
 	shellquote "github.com/kballard/go-shellquote"
@@ -35,9 +37,9 @@ func Command(cmd string, args ...string) *exec.Cmd {
 	return c
 }
 
-func nixEnv(path string, extraArgs []string) ([]Item, error) {
+func nixEnv(path string, extraFlags []string) ([]Item, error) {
 	args := []string{"-f", path, "--drv-path", "-qaP", "*", "--xml", "--meta"}
-	args = append(args, extraArgs...)
+	args = append(args, extraFlags...)
 	cmd := Command("nix-env", args...)
 	var out bytes.Buffer
 	cmd.Stdout = &out
@@ -52,13 +54,14 @@ func nixEnv(path string, extraArgs []string) ([]Item, error) {
 	return items.Items, nil
 }
 
-func missingPackages(path string, extraArgs []string) (map[string]bool, error) {
+func missingPackages(path string, extraFlags []string) (map[string]bool, error) {
 	var out bytes.Buffer
 	args := []string{"--dry-run", path}
-	args = append(args, extraArgs...)
+	args = append(args, extraFlags...)
 	cmd := Command("nix-build", args...)
 	cmd.Stderr = &out
 	if err := cmd.Run(); err != nil {
+		fmt.Fprint(os.Stderr, out.String())
 		return nil, err
 	}
 
@@ -76,7 +79,6 @@ func missingPackages(path string, extraArgs []string) (map[string]bool, error) {
 			found = true
 		} else if found {
 			drv := strings.TrimLeft(line, " ")
-			fmt.Println(drv)
 			missingDrvs[drv] = true
 		}
 	}
@@ -85,11 +87,41 @@ func missingPackages(path string, extraArgs []string) (map[string]bool, error) {
 
 }
 
-func nixBuild(path string, attrs []string, extraArgs []string) error {
-	args := []string{"build", "-f", path}
-	args = append(args, attrs...)
-	args = append(args, extraArgs...)
+func escapeAttr(attr string) string {
+	parts := strings.Split(attr, ".")
+	quoted := make([]string, len(parts))
+	for idx, part := range parts {
+		quoted[idx] = fmt.Sprintf("\"%s\"", part)
+	}
+	return strings.Join(quoted, ".")
+}
 
+func nixBuild(path string, attrs []string, extraArgs []string) error {
+	args := []string{"build"}
+
+	tmpFile, err := ioutil.TempFile("", "*.nix")
+	if err != nil {
+		die("failed to create temporary file: %s", err)
+	}
+	defer os.Remove(tmpFile.Name())
+	absolutePath, err := filepath.Abs(path)
+	if err != nil {
+		die("invalid '%s' passed", path)
+	}
+	header := fmt.Sprintf(`{...} @args:
+let
+  set' = import "%s";
+  set = if builtins.isFunction set' then set' args else set';
+in [
+`, absolutePath)
+	tmpFile.WriteString(header)
+	for _, attr := range attrs {
+		tmpFile.WriteString(fmt.Sprintf("set.%s\n", escapeAttr(attr)))
+	}
+	tmpFile.WriteString("]")
+	tmpFile.Close()
+	args = append(args, []string{"-f", tmpFile.Name()}...)
+	args = append(args, extraArgs...)
 	cmd := Command("nix", args...)
 	return cmd.Run()
 }
@@ -99,13 +131,13 @@ func die(format string, a ...interface{}) {
 	os.Exit(1)
 }
 
-func buildUncached(path string, evalArgs []string, buildArgs []string) {
-	items, err := nixEnv(path, evalArgs)
+func buildUncached(path string, evalFlags []string, buildArgs []string) {
+	items, err := nixEnv(path, evalFlags)
 	if err != nil {
 		die("%s\n", err)
 	}
 
-	missingDrvs, err := missingPackages(path, evalArgs)
+	missingDrvs, err := missingPackages(path, evalFlags)
 	if err != nil {
 		die("%s\n", err)
 	}
@@ -116,6 +148,7 @@ func buildUncached(path string, evalArgs []string, buildArgs []string) {
 			missingAttrs = append(missingAttrs, item.AttrPath)
 		}
 	}
+
 	fmt.Printf("%d/%d attribute(s) will be built:\n", len(missingAttrs), len(items))
 	for _, attr := range missingAttrs {
 		fmt.Printf("  %s\n", attr)
@@ -123,6 +156,7 @@ func buildUncached(path string, evalArgs []string, buildArgs []string) {
 	if len(missingAttrs) == 0 {
 		return
 	}
+
 	if err := nixBuild(path, missingAttrs, buildArgs); err != nil {
 		die("nix-build failed: %s\n", err)
 	}
@@ -130,26 +164,25 @@ func buildUncached(path string, evalArgs []string, buildArgs []string) {
 }
 
 func main() {
-	args := flag.String("args", "", "additional arguments to pass to both nix-env/nix build")
-	rawBuildArgs := flag.String("build-args", "--keep-going", "additional arguments to pass to both nix build")
+	flags := flag.String("flags", "", "additional arguments to pass to both nix-env/nix build")
+	rawBuildFlags := flag.String("build-flags", "--keep-going", "additional arguments to pass to both nix build")
 
 	flag.Parse()
 	paths := flag.Args()
-	fmt.Println(paths)
 	if len(paths) != 1 {
 		die("USAGE: %s path\n", os.Args[0])
 	}
 	path := paths[0]
-	evalArgs, err := shellquote.Split(*args)
+	evalFlags, err := shellquote.Split(*flags)
 	if err != nil {
 		die("Value passed to -args is not valid: %s\n", err)
 	}
-	buildArgs, err := shellquote.Split(*rawBuildArgs)
+	buildArgs, err := shellquote.Split(*rawBuildFlags)
 	if err != nil {
 		die("Value passed to -build-args is not valid: %s\n", err)
 	}
 
-	buildArgs = append(evalArgs, buildArgs...)
+	buildArgs = append(evalFlags, buildArgs...)
 
-	buildUncached(path, evalArgs, buildArgs)
+	buildUncached(path, evalFlags, buildArgs)
 }

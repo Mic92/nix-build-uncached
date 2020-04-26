@@ -96,6 +96,11 @@ func escapeAttr(attr string) string {
 	return strings.Join(quoted, ".")
 }
 
+func needExperimentalFlags() bool {
+	cmd := exec.Command("nix")
+	return cmd.Run() != nil
+}
+
 func nixBuild(path string, attrs []string, extraArgs []string) error {
 	args := []string{"build"}
 
@@ -120,6 +125,9 @@ in [
 	}
 	tmpFile.WriteString("]")
 	tmpFile.Close()
+	if needExperimentalFlags() {
+		args = append(args, []string{"--experimental-features", "nix-command"}...)
+	}
 	args = append(args, []string{"-f", tmpFile.Name()}...)
 	args = append(args, extraArgs...)
 	cmd := Command("nix", args...)
@@ -158,7 +166,7 @@ func buildUncached(path string, evalFlags []string, buildArgs []string) {
 	}
 
 	if err := nixBuild(path, missingAttrs, buildArgs); err != nil {
-		die("nix-build failed: %s\n", err)
+		die("nix build failed: %s\n", err)
 	}
 
 }

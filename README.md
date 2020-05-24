@@ -4,7 +4,7 @@
 
 `nix-build` by default will download already built packages, resulting in
 unnecessary downloads even if no package has been changed.
-Nix-build-uncached will only build packages not yet in binary caches.
+`nix-build-uncached` will only build packages not yet in binary caches.
 
 ## USAGE
 
@@ -14,7 +14,7 @@ Pass a file with the nix expressions you want to build.
 $ nix-build-uncached ./ci.nix
 ```
 
-As a result `nix-build-uncached` will built all packages,
+As a result `nix-build-uncached` will build all packages,
 not present in the binary cache:
 
 ```

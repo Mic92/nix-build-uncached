@@ -25,3 +25,7 @@ $ nix-build --dry-run non-broken.nix
 $ nix build -f /tmp/859272287.nix --keep-going
 [1 built, 1 copied (0.2 MiB)]
 ```
+
+## Real-world examples
+
+- [Using nix-build-uncached in github actions](https://github.com/Mic92/nur-packages/blob/master/.github/workflows/build.yml)

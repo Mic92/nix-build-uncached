@@ -11,7 +11,7 @@ unnecessary downloads even if no package has been changed.
 `nix-build-uncached` is available in nixpkgs-unstable.
 
 ```
-$ nix-shell -p nix-build-uncached --run 'nix-build-uncached --help'
+[joerg@turingmachine] nix-shell -p nix-build-uncached --run 'nix-build-uncached --help'
 Usage of nix-build-uncached:
   -build-flags string
     	additional arguments to pass to both nix build (default "--keep-going")
@@ -23,7 +23,7 @@ Pass a file with the nix expressions you want to build.
 As a result `nix-build-uncached` will build all packages,
 not present in the binary cache:
 
-```console
+```
 [joerg@turingmachine] nix-build-uncached ./ci.nix
 $ nix-env -f non-broken.nix --drv-path -qaP * --xml --meta
 $ nix-build --dry-run non-broken.nix

@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
-      - uses: cachix/install-nix-action@v7
+      - uses: cachix/install-nix-action@v10
       - name: Get release notes
         id: release-notes
         run: ./scripts/print-release-notes.sh

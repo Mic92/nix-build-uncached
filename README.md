@@ -10,27 +10,52 @@ unnecessary downloads even if no package has been changed.
 
 `nix-build-uncached` is available in nixpkgs-unstable.
 
-```
-[joerg@turingmachine] nix-shell -p nix-build-uncached --run 'nix-build-uncached --help'
-Usage of nix-build-uncached:
-  -build-flags string
-    	additional arguments to pass to both nix build (default "--keep-going")
-  -flags string
-    	additional arguments to pass to both nix-env/nix build
-```
-
-Pass a file with the nix expressions you want to build.
-As a result `nix-build-uncached` will build all packages,
-not present in the binary cache:
+In the following example ci.nix contains all expressions
+that should be built. Since only `hello-nur` has been
+modified all other packages are skipped.
 
 ```
-[joerg@turingmachine] nix-build-uncached ./ci.nix
-$ nix-env -f non-broken.nix --drv-path -qaP * --xml --meta
-$ nix-build --dry-run non-broken.nix
-1/40 attribute(s) will be built:
-  hello-nur
-$ nix build -f /tmp/859272287.nix --keep-going
-[1 built, 1 copied (0.2 MiB)]
+[joerg@turingmachine] nix-build-uncached ci.nix
+$ nix-build --dry-run ci.nix --keep-going
+these derivations will be built:
+  /nix/store/s5alllpjx9fmdj26mf9cmxzs3xyxjn7f-hello-2.00.tar.gz.drv
+  /nix/store/03m2lwg4zia58zqm7hqlb3r0cgfq53cn-hello-2.00.drv
+these paths will be fetched (198.28 MiB download, 681.37 MiB unpacked):
+  /nix/store/0mijq2b50xmgk6akxdrg3x8x0k7784jb-python3.8-kiwisolver-1.2.0
+  /nix/store/0q1g21q160w2cj2745r24pfn2yb8pmda-python3.8-jupyter_client-6.1.5
+  /nix/store/0qxi1gzv1xgpxy58nfk9pxlfqybv1198-cntr-1.2.0
+ # ...
+$ nix build --keep-going /nix/store/s5alllpjx9fmdj26mf9cmxzs3xyxjn7f-hello-2.00.tar.gz.drv /nix/store/03m2lwg4zia58zqm7hqlb3r0cgfq53cn-hello-2.00.drv
+[1/2 built, 1 copied (0.7 MiB)] connecting to 'ssh://Mic92@prism.r'
+
+```
+
+We can pass all arguments that also `nix-build` accept:
+
+```
+[joerg@turingmachine] nix-build-uncached -E 'with import <nixpkgs> {}; hello'
+$ nix-build --dry-run -E with import <nixpkgs> {}; hello --keep-going
+these paths will be fetched (0.04 MiB download, 0.20 MiB unpacked):
+  /nix/store/aldyr0pjzqydf1vn9lzz7p5gvc141fhn-hello-2.10
+```
+
+However this only affects the evaluation during the dry build, if you want to
+pass arguments to the final `nix build` instead, use `-build-flags`:
+
+```console
+[joerg@turingmachine] nix-build-uncached --build-flags '--builders ""' ci.nix
+$ nix-build --dry-run ci.nix --builders
+these derivations will be built:
+  /nix/store/s5alllpjx9fmdj26mf9cmxzs3xyxjn7f-hello-2.00.tar.gz.drv
+  /nix/store/03m2lwg4zia58zqm7hqlb3r0cgfq53cn-hello-2.00.drv
+these paths will be fetched (198.28 MiB download, 681.37 MiB unpacked):
+  /nix/store/0mijq2b50xmgk6akxdrg3x8x0k7784jb-python3.8-kiwisolver-1.2.0
+  /nix/store/0q1g21q160w2cj2745r24pfn2yb8pmda-python3.8-jupyter_client-6.1.5
+  /nix/store/0qxi1gzv1xgpxy58nfk9pxlfqybv1198-cntr-1.2.0
+ # ...
+$ nix build --builders   /nix/store/s5alllpjx9fmdj26mf9cmxzs3xyxjn7f-hello-2.00.tar.gz.drv /nix/store/03m2lwg4zia58zqm7hqlb3r0cgfq53cn-hello-2.00.drv
+[1/2 built, 1 copied (0.7 MiB)] connecting to 'ssh://Mic92@prism.r'
+
 ```
 
 ## Real-world examples

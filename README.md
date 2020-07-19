@@ -42,7 +42,7 @@ these paths will be fetched (0.04 MiB download, 0.20 MiB unpacked):
 However this only affects the evaluation during the dry build, if you want to
 pass arguments to the final `nix build` instead, use `-build-flags`:
 
-```console
+```
 [joerg@turingmachine] nix-build-uncached --build-flags '--builders ""' ci.nix
 $ nix-build --dry-run ci.nix --builders
 these derivations will be built:
@@ -57,6 +57,27 @@ $ nix build --builders   /nix/store/s5alllpjx9fmdj26mf9cmxzs3xyxjn7f-hello-2.00.
 [1/2 built, 1 copied (0.7 MiB)] connecting to 'ssh://Mic92@prism.r'
 
 ```
+
+### Flakes
+
+We cannot support flakes directly at the time because `nix-build` does
+not accept those and `nix build`'s `--no-dry-run` is broken.
+However it is possible to add a wrapper nix expression that imports a flake.
+The following example imports hydra jobs from a nix flake the same directory.
+It assumes that the flake also has `nixpkgs` in its inputs.
+
+```nix
+let
+  outputs = builtins.getFlake (toString ./.);
+  pkgs = outputs.inputs.nixpkgs;
+  drvs = pkgs.lib.collect pkgs.lib.isDerivation outputs.hydraJobs;
+in drvs
+```
+
+```console
+$ nix-build-uncached ./ci.nix
+```
+
 
 ## Real-world examples
 

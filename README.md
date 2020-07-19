@@ -11,8 +11,8 @@ unnecessary downloads even if no package has been changed.
 `nix-build-uncached` is available in nixpkgs-unstable.
 
 In the following example ci.nix contains all expressions
-that should be built. Since only `hello-nur` has been
-modified all other packages are skipped.
+that should be built. Since only `hello-nur` is not yet in
+the binary cache, all other packages are skipped.
 
 ```
 [joerg@turingmachine] nix-build-uncached ci.nix

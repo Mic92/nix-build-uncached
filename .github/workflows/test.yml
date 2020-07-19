@@ -13,4 +13,4 @@ jobs:
     - run:
         nix-shell --run 'go test'
     - run:
-        nix run nixpkgs.gox -c gox .
+        nix run nixpkgs.gox -c gox -os '!windows' .

@@ -83,10 +83,10 @@ func raiseFdLimit() (uint64, error) {
 		err = syscall.Setrlimit(syscall.RLIMIT_NOFILE, &rlimit)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "failed setting rlimit: %s", err)
-			return oldVal, nil
+			return uint64(oldVal), nil
 		}
 	}
-	return rlimit.Cur, nil
+	return uint64(rlimit.Cur), nil
 }
 
 func nixBuild(drvs map[string]bool, buildArgs []string) error {

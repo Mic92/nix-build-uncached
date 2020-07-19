@@ -6,8 +6,9 @@ buildGoModule {
   src = ./.;
 
   modSha256 = "1fl0wb1xj4v4whqm6ivzqjpac1iwpq7m12g37gr4fpgqp8kzi6cn";
+  vendorSha256 = null;
 
-  nativeBuildInputs = [ makeWrapper ];
+  nativeBuildInputs = [ makeWrapper delve ];
 
   postInstall = ''
     wrapProgram $out/bin/nix-build-uncached \

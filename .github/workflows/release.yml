@@ -13,7 +13,7 @@ jobs:
       - uses: cachix/install-nix-action@v10
       - name: Get release notes
         id: release-notes
-        run: ./scripts/print-release-notes.sh
+        run: ./scripts/print-release-notes.sh ${{ github.ref }}
       - name: Build binaries
         run: |
           mkdir -p build

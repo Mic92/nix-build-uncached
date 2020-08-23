@@ -78,6 +78,17 @@ in drvs
 $ nix-build-uncached ./ci.nix
 ```
 
+### Packages with `allowSubstitutes = false`
+
+If your package set you are building has packages at the top level scope that
+have the attribute `allowSubstitutes = false;` set, than `nix-build-uncached`
+will build/download them everytime. A workaround is to use the following
+[gist](https://gist.github.com/7bc9210b1c4d0afe390f0d425b50e02f):
+
+```nix
+# TODO example
+```
+
 
 ## Real-world examples
 

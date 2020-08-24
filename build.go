@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"runtime"
 	"strings"
 	"syscall"
 )
@@ -80,6 +81,9 @@ func raiseFdLimit() (uint64, error) {
 	if rlimit.Cur < rlimit.Max {
 		oldVal := rlimit.Cur
 		rlimit.Cur = rlimit.Max
+		if runtime.GOOS == "darwin" && rlimit.Cur > 24576 {
+			rlimit.Cur = 24576
+		}
 		err = syscall.Setrlimit(syscall.RLIMIT_NOFILE, &rlimit)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "failed setting rlimit: %s", err)

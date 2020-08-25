@@ -16,6 +16,7 @@ jobs:
     - run:
         nix-build -I nixpkgs=channel:nixos-unstable-small
     - run:
+        # on macOS tmpdir is in /var, which breaks with `nix --store`
         nix-shell -I nixpkgs=channel:nixos-unstable-small --pure --run "NIX_SSL_CERT_FILE=$NIX_SSL_CERT_FILE go test"
     - run:
         nix run nixpkgs.gox -c gox -os '!windows' .

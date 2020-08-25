@@ -15,6 +15,11 @@ buildGoModule {
       --prefix PATH ":" ${lib.makeBinPath [ nix ]}
   '';
 
+  shellHook = ''
+    # needed for tests
+    export PATH=$PATH:${lib.makeBinPath [ nix ]}
+  '';
+
   # requires nix, which we do not have in the sandbox
   doCheck = false;
 

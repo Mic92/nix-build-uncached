@@ -11,6 +11,6 @@ jobs:
     - run:
         nix-build
     - run:
-        nix-shell --run 'go test'
+        nix-shell --pure --run "NIX_SSL_CERT_FILE=$NIX_SSL_CERT_FILE go test"
     - run:
         nix run nixpkgs.gox -c gox -os '!windows' .

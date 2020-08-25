@@ -15,9 +15,8 @@ buildGoModule {
       --prefix PATH ":" ${lib.makeBinPath [ nix ]}
   '';
 
-  goPackagePath = "github.com/Mic92/nix-build-uncached";
+  # requires nix, which we do not have in the sandbox
+  doCheck = false;
 
-  shellHook = ''
-    unset GOROOT GOPATH
-  '';
+  goPackagePath = "github.com/Mic92/nix-build-uncached";
 }

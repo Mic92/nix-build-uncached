@@ -77,7 +77,7 @@ func raiseFdLimit() (uint64, error) {
 		return 0, fmt.Errorf("failed to get rlimit: %s", err)
 	}
 
-	if uint64(rlimit.Cur) < rlimitMax(rlimit) {
+	if rlimit.Cur < rlimitMax(rlimit) {
 		oldVal := rlimit.Cur
 		rlimit.Cur = rlimitMax(rlimit)
 		err = syscall.Setrlimit(syscall.RLIMIT_NOFILE, &rlimit)

@@ -82,11 +82,20 @@ $ nix-build-uncached ./ci.nix
 
 If your package set you are building has packages at the top level scope that
 have the attribute `allowSubstitutes = false;` set, than `nix-build-uncached`
-will build/download them everytime. A workaround is to use the following
-[gist](https://gist.github.com/7bc9210b1c4d0afe390f0d425b50e02f):
+will build/download them everytime. This attribute is set for some builders such
+as `writeText` or `writeScriptBin`. A workaround is to use the following
+[nix library](./scripts/force_cached.nix) and save it as
+`force_cached.nix`. Than wrap your attribute set like this:
 
 ```nix
-# TODO example
+let
+  pkgs = import <nixpkgs> {};
+in (pkgs.callPackage ./force_cached.nix {}) {
+  hello = pkgs.writeScriptBin "hello" ''
+    #!/bin/sh
+    exec ${pkgs.hello}/bin/hello
+  '';
+}
 ```
 
 

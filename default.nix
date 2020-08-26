@@ -10,11 +10,6 @@ buildGoModule {
 
   nativeBuildInputs = [ makeWrapper delve ];
 
-  postInstall = ''
-    wrapProgram $out/bin/nix-build-uncached \
-      --prefix PATH ":" ${lib.makeBinPath [ nix ]}
-  '';
-
   shellHook = ''
     # needed for tests
     export PATH=$PATH:${lib.makeBinPath [ nix ]}

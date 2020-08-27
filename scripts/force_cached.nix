@@ -18,7 +18,7 @@ let
           name = "${drv.name}-to-cached";
           system = drv.system;
           builder = "/bin/sh";
-          args = [ "-c" "${coreutils}/bin/ln -s ${drv} $out" ];
+          args = [ "-c" "${coreutils}/bin/ln -s ${drv} $out; exit 0" ];
         }
     else
       drv;

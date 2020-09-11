@@ -43,7 +43,7 @@ However this only affects the evaluation during the dry build, if you want to
 pass arguments to the final `nix build` instead, use `-build-flags`:
 
 ```
-[joerg@turingmachine] nix-build-uncached --build-flags '--builders ""' ci.nix
+[joerg@turingmachine] nix-build-uncached -build-flags '--builders ""' ci.nix
 $ nix-build --dry-run ci.nix --builders
 these derivations will be built:
   /nix/store/s5alllpjx9fmdj26mf9cmxzs3xyxjn7f-hello-2.00.tar.gz.drv

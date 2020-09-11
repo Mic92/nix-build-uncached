@@ -20,6 +20,6 @@ jobs:
       # tests rely on `--store`, which is not supported on macOS
       if: matrix.os == 'ubuntu-latest'
     - run:
-        nix-shell -I nixpkgs=channel:nixos-unstable-small --pure -p gox -p go --run "gox -os '!windows' ."
+        nix-shell -I nixpkgs=channel:nixos-unstable-small --pure -p gox -p go --run "gox -os '!windows' -osarch '!darwin/386' ."
       # no need to run this on multiple platforms
       if: matrix.os == 'ubuntu-latest'

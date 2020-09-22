@@ -2,15 +2,24 @@ name: "Test"
 on:
   pull_request:
   push:
+  schedule:
+    - cron:  '31 2 * * *'
 jobs:
   tests:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-latest ]
+    runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v2
     - uses: cachix/install-nix-action@v10
     - run:
-        nix-build
+        nix-build -I nixpkgs=channel:nixos-unstable-small
     - run:
-        nix-shell --pure --run "NIX_SSL_CERT_FILE=$NIX_SSL_CERT_FILE go test"
+        nix-shell -I nixpkgs=channel:nixos-unstable-small --pure --run "NIX_SSL_CERT_FILE=$NIX_SSL_CERT_FILE go test"
+      # tests rely on `--store`, which is not supported on macOS
+      if: matrix.os == 'ubuntu-latest'
     - run:
-        nix run nixpkgs.gox -c gox -os '!windows' .
+        nix-shell -I nixpkgs=channel:nixos-unstable-small --pure -p gox -p go --run "gox -os '!windows' -osarch '!darwin/386' ."
+      # no need to run this on multiple platforms
+      if: matrix.os == 'ubuntu-latest'

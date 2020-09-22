@@ -59,8 +59,8 @@ func needExperimentalFlags() bool {
 
 func nixDryBuild(buildArgs []string) (map[string]bool, error) {
 	var out bytes.Buffer
-	args := append([]string{"--dry-run"}, buildArgs...)
-	cmd := Command("nix-build", args...)
+	args := append([]string{"build", "--dry-run", "--option", "allow-import-from-derivation", "true"}, buildArgs...)
+	cmd := Command("nix", args...)
 	cmd.Stderr = &out
 	if err := cmd.Run(); err != nil {
 		fmt.Fprint(os.Stderr, out.String())

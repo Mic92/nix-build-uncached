@@ -41,7 +41,7 @@ func parseMissingDrvs(output *bytes.Buffer) map[string]bool {
 		if strings.Contains(line, "paths will be fetched") || strings.HasPrefix(line, "don't know how to build these paths") {
 			break
 		}
-		if strings.Contains(line, "derivations will be built:") {
+		if strings.Contains(line, "will be built:") {
 			found = true
 		} else if found {
 			drv := strings.TrimLeft(line, " ")

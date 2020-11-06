@@ -38,7 +38,7 @@ func parseMissingDrvs(output *bytes.Buffer) map[string]bool {
 	missingDrvs := make(map[string]bool)
 	for scanner.Scan() {
 		line := scanner.Text()
-		if strings.Contains(line, "paths will be fetched") || strings.HasPrefix(line, "don't know how to build these paths") {
+		if strings.Contains(line, "will be fetched") || strings.HasPrefix(line, "don't know how to build these paths") {
 			break
 		}
 		if strings.Contains(line, "will be built:") {

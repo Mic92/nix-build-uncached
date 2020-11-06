@@ -8,7 +8,12 @@ unnecessary downloads even if no package has been changed.
 
 ## USAGE
 
-`nix-build-uncached` is available in nixpkgs-unstable.
+`nix-build-uncached` is available in nixpkgs.
+
+For nix versions bigger than 2.3.x you need to enable at least
+`experimental-features = nix-command` in your `/etc/nix/nix.conf` or
+`$HOME/.config/nix/nix.conf` or pass `-build-flags "--experimental-features nix-command"`
+to `nix-build-uncached`.
 
 In the following example ci.nix contains all expressions
 that should be built. Since only `hello-nur` is not yet in
@@ -55,7 +60,6 @@ these paths will be fetched (198.28 MiB download, 681.37 MiB unpacked):
  # ...
 $ nix build --builders   /nix/store/s5alllpjx9fmdj26mf9cmxzs3xyxjn7f-hello-2.00.tar.gz.drv /nix/store/03m2lwg4zia58zqm7hqlb3r0cgfq53cn-hello-2.00.drv
 [1/2 built, 1 copied (0.7 MiB)] connecting to 'ssh://Mic92@prism.r'
-
 ```
 
 ### Flakes

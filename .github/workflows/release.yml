@@ -20,7 +20,7 @@ jobs:
         run: |
           mkdir -p build
           cd build
-          nix run nixpkgs.gox -c gox -os '!windows' -osarch '!darwin/386' ..
+          nix-shell -I nixpkgs=channel:nixos-unstable-small --pure -p gox -p go --run "gox -os '!windows' -osarch '!darwin/386' .."
           gzip *
       - name: Create Release
         id: create_release

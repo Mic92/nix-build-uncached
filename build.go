@@ -52,11 +52,6 @@ func parseMissingDrvs(output *bytes.Buffer) map[string]bool {
 	return missingDrvs
 }
 
-func needExperimentalFlags() bool {
-	cmd := exec.Command("nix")
-	return cmd.Run() != nil
-}
-
 func nixDryBuild(buildArgs []string) (map[string]bool, error) {
 	var out bytes.Buffer
 	args := append([]string{"--dry-run"}, buildArgs...)
@@ -132,10 +127,6 @@ func nixBuild(drvs map[string]bool, buildArgs []string) error {
 }
 
 func buildUncached(installables []string, buildArgs []string) ([]string, error) {
-	if needExperimentalFlags() {
-		buildArgs = append(buildArgs, "--experimental-features", "nix-command")
-	}
-
 	missingDrvs, err := nixDryBuild(append(installables, buildArgs...))
 	if err != nil {
 		return nil, fmt.Errorf("--dry-run failed: %s", err)

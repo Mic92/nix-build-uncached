@@ -9,10 +9,24 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest, macos-latest ]
+        nix: [ legacy, flakes ]
+        exclude:
+          # flakes installer broken atm
+          - os: macos-latest
+            nix: flakes
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v2
-    - uses: cachix/install-nix-action@v11
+    - name: Install legacy nix
+      uses: cachix/install-nix-action@v11
+      if: matrix.nix == 'legacy'
+    - name: Install flakes nix
+      uses: cachix/install-nix-action@v11
+      if: matrix.nix == 'flakes'
+      with:
+        install_url: https://github.com/numtide/nix-flakes-installer/releases/download/nix-3.0pre20201007_5257a25/install
+        extra_nix_config: |
+          experimental-features = nix-command flakes
     - run:
         nix-build -I nixpkgs=channel:nixos-unstable-small
     - run:
@@ -22,4 +36,4 @@ jobs:
     - run:
         nix-shell -I nixpkgs=channel:nixos-unstable-small --pure -p gox -p go --run "gox -os '!windows' -osarch '!darwin/386' ."
       # no need to run this on multiple platforms
-      if: matrix.os == 'ubuntu-latest'
+      if: matrix.os == 'ubuntu-latest' && matrix.nix == 'flakes'

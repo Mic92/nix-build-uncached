@@ -127,7 +127,7 @@ func nixBuild(drvs map[string]bool, buildArgs []string) error {
 }
 
 func buildUncached(installables []string, buildArgs []string) ([]string, error) {
-	missingDrvs, err := nixDryBuild(append(installables, buildArgs...))
+	missingDrvs, err := nixDryBuild(installables)
 	if err != nil {
 		return nil, fmt.Errorf("--dry-run failed: %s", err)
 	}

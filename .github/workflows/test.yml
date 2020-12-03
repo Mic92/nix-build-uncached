@@ -30,7 +30,7 @@ jobs:
     - run:
         nix-build -I nixpkgs=channel:nixos-unstable-small
     - run:
-        nix-shell -I nixpkgs=channel:nixos-unstable-small --pure --run "NIX_SSL_CERT_FILE=$NIX_SSL_CERT_FILE go test"
+        nix-shell -I nixpkgs=channel:nixos-unstable-small --pure --run "TEST_ASSETS=$(pwd)/test NIX_SSL_CERT_FILE=$NIX_SSL_CERT_FILE go test"
       # tests rely on `--store`, which is not supported on macOS
       if: matrix.os == 'ubuntu-latest'
     - run:

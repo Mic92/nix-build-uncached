@@ -62,8 +62,10 @@ func buildNixFile(t testing.TB, tempdir string, nixFile string, expectedBuilds i
 func TestFoo(t *testing.T) {
 	tempdir, err := ioutil.TempDir(TempRoot(t), "test")
 	ok(t, err)
-	_, filename, _, _ := runtime.Caller(0)
-	asset := path.Join(path.Dir(filename), "test")
+	asset := os.Getenv("TEST_ASSETS")
+	if asset == "" {
+		asset = "test"
+	}
 
 	builds := buildNixFile(t, tempdir, path.Join(asset, "test-skip-cached.nix"), 1)
 	equals(t, builds, 1)

@@ -28,12 +28,12 @@ jobs:
         extra_nix_config: |
           experimental-features = nix-command flakes
     - run:
-        nix-build -I nixpkgs=channel:nixos-unstable-small
+        nix-build -I nixpkgs=https://github.com/NixOS/nixpkgs/archive/nixpkgs-unstable.tar.gz
     - run:
-        nix-shell -I nixpkgs=channel:nixos-unstable-small --pure --run "TEST_ASSETS=$(pwd)/test NIX_SSL_CERT_FILE=$NIX_SSL_CERT_FILE go test"
+        nix-shell -I nixpkgs=https://github.com/NixOS/nixpkgs/archive/nixpkgs-unstable.tar.gz --pure --run "TEST_ASSETS=$(pwd)/test NIX_SSL_CERT_FILE=$NIX_SSL_CERT_FILE go test"
       # tests rely on `--store`, which is not supported on macOS
       if: matrix.os == 'ubuntu-latest'
     - run:
-        nix-shell -I nixpkgs=channel:nixos-unstable-small --pure -p gox -p go --run "gox -os '!windows' -osarch '!darwin/386' ."
+        nix-shell -I nixpkgs=https://github.com/NixOS/nixpkgs/archive/nixpkgs-unstable.tar.gz --pure -p gox -p go --run "gox -os '!windows' -osarch '!darwin/386' ."
       # no need to run this on multiple platforms
       if: matrix.os == 'ubuntu-latest' && matrix.nix == 'flakes'

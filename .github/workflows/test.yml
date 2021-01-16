@@ -25,15 +25,16 @@ jobs:
       if: matrix.nix == 'flakes'
       with:
         install_url: https://github.com/numtide/nix-flakes-installer/releases/download/nix-3.0pre20201007_5257a25/install
+        nix_path: nixpkgs=https://github.com/NixOS/nixpkgs/archive/nixpkgs-unstable.tar.gz
         extra_nix_config: |
           experimental-features = nix-command flakes
     - run:
-        nix-build -I nixpkgs=channel:nixos-unstable-small
+        nix-build
     - run:
-        nix-shell -I nixpkgs=channel:nixos-unstable-small --pure --run "TEST_ASSETS=$(pwd)/test NIX_SSL_CERT_FILE=$NIX_SSL_CERT_FILE go test"
+        nix-shell --pure --run "TEST_ASSETS=$(pwd)/test NIX_SSL_CERT_FILE=$NIX_SSL_CERT_FILE go test"
       # tests rely on `--store`, which is not supported on macOS
       if: matrix.os == 'ubuntu-latest'
     - run:
-        nix-shell -I nixpkgs=channel:nixos-unstable-small --pure -p gox -p go --run "gox -os '!windows' -osarch '!darwin/386' ."
+        nix-shell --pure -p gox -p go --run "gox -os '!windows' -osarch '!darwin/386' ."
       # no need to run this on multiple platforms
       if: matrix.os == 'ubuntu-latest' && matrix.nix == 'flakes'

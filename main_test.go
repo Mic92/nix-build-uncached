@@ -48,8 +48,8 @@ func buildNixFile(t testing.TB, tempdir string, nixFile string, expectedBuilds i
 	err := os.MkdirAll(output, 0700)
 	ok(t, err)
 
-	buildFlags := fmt.Sprintf("-I nixpkgs=channel:nixos-unstable-small --store '%s' -o '%s'", store, path.Join(output, "result"))
-	flags := []string{"-build-flags", buildFlags, nixFile}
+	buildFlags := fmt.Sprintf("--store '%s' -o '%s'", store, path.Join(output, "result"))
+	flags := []string{"-build-flags", buildFlags, nixFile, "-I", "nixpkgs=https://github.com/NixOS/nixpkgs/archive/nixpkgs-unstable.tar.gz", "--store", store}
 	fmt.Printf("nix-build-uncached %s\n", strings.Join(flags, " "))
 	err = realMain(flags)
 	ok(t, err)

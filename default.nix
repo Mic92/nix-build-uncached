@@ -17,6 +17,4 @@ buildGoModule {
 
   # requires nix, which we do not have in the sandbox
   doCheck = false;
-
-  goPackagePath = "github.com/Mic92/nix-build-uncached";
 }

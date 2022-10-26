@@ -10,11 +10,6 @@ unnecessary downloads even if no package has been changed.
 
 `nix-build-uncached` is available in nixpkgs.
 
-For nix versions bigger than 2.3.x you need to enable at least
-`experimental-features = nix-command` in your `/etc/nix/nix.conf` or
-`$HOME/.config/nix/nix.conf` or pass `-build-flags "--experimental-features nix-command"`
-to `nix-build-uncached`.
-
 In the following example ci.nix contains all expressions
 that should be built. Since only `hello-nur` is not yet in
 the binary cache, all other packages are skipped.

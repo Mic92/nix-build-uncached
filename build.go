@@ -15,6 +15,7 @@ const MAX_CHARS = 32 * 1024
 
 func Command(cmd string, args ...string) *exec.Cmd {
 	c := exec.Command(cmd, args...)
+
 	c.Stdout = os.Stdout
 	c.Stderr = os.Stderr
 	fmt.Printf("$ %s", cmd)
@@ -137,7 +138,15 @@ func buildUncached(installables []string, buildArgs []string) ([]string, error) 
 	}
 
 	var builtDrvs []string
+
+	file, err := os.Create("./drvs")
+	if err != nil {
+		fmt.Errorf("cannot write drvs to file: %s\n", err)
+	}
+	defer file.Close()
+
 	for drv := range missingDrvs {
+		file.WriteString(drv + "\n")
 		builtDrvs = append(builtDrvs, drv)
 	}
 

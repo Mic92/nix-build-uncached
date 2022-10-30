@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"github.com/tidwall/gjson"
 	"os"
 	"os/exec"
 	"strings"
@@ -141,13 +142,24 @@ func buildUncached(installables []string, buildArgs []string) ([]string, error) 
 
 	file, err := os.Create("./drvs")
 	if err != nil {
-		fmt.Errorf("cannot write drvs to file: %s\n", err)
+		_ = fmt.Errorf("cannot write drvs to file: %s\n", err)
 	}
 	defer file.Close()
 
 	for drv := range missingDrvs {
-		file.WriteString(drv + "\n")
+		c := exec.Command("nix", "show-derivation", "--experimental-features", "nix-command", drv)
+
+		c.Stderr = os.NewFile(0, os.DevNull)
+		out, _ := c.Output()
+
+		preferLocal := gjson.GetBytes(out, "*.env.preferLocalBuild").Bool()
+
+		if !preferLocal {
+			file.WriteString(drv + "\n")
+		}
+
 		builtDrvs = append(builtDrvs, drv)
+
 	}
 
 	return builtDrvs, nil

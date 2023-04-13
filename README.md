@@ -1,5 +1,10 @@
 # nix-build-uncached
 
+**Deprecation** nix-eval-uncached exposes the binary cache information now also
+in `--check-cache-status`, which allows to build a similar feature. Otherwise
+https://github.com/NixOS/nix/issues/3946 might information about possible
+features in nix itself.
+
 ![Test](https://github.com/Mic92/nix-build-uncached/workflows/Test/badge.svg)
 
 `nix-build` by default will download already built packages, resulting in

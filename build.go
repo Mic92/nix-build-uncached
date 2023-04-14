@@ -85,7 +85,6 @@ func raiseFdLimit() (uint64, error) {
 }
 
 func nixBuild(drvs map[string]bool, buildArgs []string) error {
-	buildArgs = append([]string{"build"}, buildArgs...)
 	numBuildChars := len("nix") + 1
 	for _, arg := range buildArgs {
 		numBuildChars += len(arg) + 1
@@ -107,7 +106,7 @@ func nixBuild(drvs map[string]bool, buildArgs []string) error {
 	for drv := range drvs {
 		n := len(drv) + 1
 		if n+numChars > MAX_CHARS || uint64(len(args)-len(buildArgs)) >= maxConcurrentBuilds {
-			cmd := Command("nix", args...)
+			cmd := Command("nix-build", args...)
 			if err := cmd.Run(); err != nil {
 				return err
 			}
@@ -118,7 +117,7 @@ func nixBuild(drvs map[string]bool, buildArgs []string) error {
 		numChars += n
 	}
 	if numChars > numBuildChars {
-		cmd := Command("nix", args...)
+		cmd := Command("nix-build", args...)
 		if err := cmd.Run(); err != nil {
 			return err
 		}

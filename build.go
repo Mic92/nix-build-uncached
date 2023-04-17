@@ -114,7 +114,7 @@ func nixBuild(drvs map[string]bool, buildArgs []string) error {
 			numChars = numBuildChars
 			args = buildArgs
 		}
-		args = append(args, drv)
+		args = append(args, drv+"^*")
 		numChars += n
 	}
 	if numChars > numBuildChars {

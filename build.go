@@ -84,7 +84,7 @@ func raiseFdLimit() (uint64, error) {
 	return uint64(rlimit.Cur), nil
 }
 
-func nixBuild(drvs map[string]bool, buildArgs []string) error {
+func nixBuild(drvs map[string]bool, buildArgs []string, version nixVersion) error {
 	buildArgs = append([]string{"build"}, buildArgs...)
 	numBuildChars := len("nix") + 1
 	for _, arg := range buildArgs {
@@ -114,7 +114,11 @@ func nixBuild(drvs map[string]bool, buildArgs []string) error {
 			numChars = numBuildChars
 			args = buildArgs
 		}
-		args = append(args, drv+"^*")
+		// if nix version is higher than 2.15 we need to append ^* to the drv
+		if version.Major > 2 || (version.Major == 2 && version.Minor >= 15) {
+			drv += "^*"
+		}
+		args = append(args, drv)
 		numChars += n
 	}
 	if numChars > numBuildChars {
@@ -126,13 +130,13 @@ func nixBuild(drvs map[string]bool, buildArgs []string) error {
 	return nil
 }
 
-func buildUncached(installables []string, buildArgs []string) ([]string, error) {
+func buildUncached(installables []string, buildArgs []string, version nixVersion) ([]string, error) {
 	missingDrvs, err := nixDryBuild(installables)
 	if err != nil {
 		return nil, fmt.Errorf("--dry-run failed: %s", err)
 	}
 
-	if err := nixBuild(missingDrvs, buildArgs); err != nil {
+	if err := nixBuild(missingDrvs, buildArgs, version); err != nil {
 		return nil, fmt.Errorf("nix build failed: %s\n", err)
 	}
 

@@ -17,7 +17,11 @@ jobs:
     - run:
         nix-build -I nixpkgs=https://github.com/NixOS/nixpkgs/archive/nixpkgs-unstable.tar.gz
     - run:
-        nix-shell -I nixpkgs=https://github.com/NixOS/nixpkgs/archive/nixpkgs-unstable.tar.gz --pure --run "TEST_ASSETS=$(pwd)/test NIX_SSL_CERT_FILE=$NIX_SSL_CERT_FILE go test"
+        nix-shell -I nixpkgs=https://github.com/NixOS/nixpkgs/archive/nixpkgs-unstable.tar.gz --pure --run "TMPDIR=/tmp TEST_ASSETS=$(pwd)/test NIX_SSL_CERT_FILE=$NIX_SSL_CERT_FILE go test"
+      # tests rely on `--store`, which is not supported on macOS
+      if: matrix.os == 'ubuntu-latest'
+    - run:
+        nix-shell --argstr nixVersion nix_2_15 -I nixpkgs=https://github.com/NixOS/nixpkgs/archive/nixpkgs-unstable.tar.gz --pure --run "TMPDIR=/tmp TEST_ASSETS=$(pwd)/test NIX_SSL_CERT_FILE=$NIX_SSL_CERT_FILE go test"
       # tests rely on `--store`, which is not supported on macOS
       if: matrix.os == 'ubuntu-latest'
     - run:

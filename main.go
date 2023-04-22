@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 
@@ -10,6 +11,25 @@ import (
 type options struct {
 	buildFlags   string
 	installables []string
+}
+
+type nixVersion struct {
+	Major, Minor, Patch uint64
+}
+
+func getNixVersion() (nixVersion, error) {
+	var version nixVersion
+	cmd := Command("nix", "--version")
+	var outb bytes.Buffer
+	cmd.Stdout = &outb
+	if err := cmd.Run(); err != nil {
+		return version, err
+	}
+	_, err := fmt.Sscanf(outb.String(), "nix (Nix) %d.%d.%d", &version.Major, &version.Minor, &version.Patch)
+	if err != nil {
+		return version, err
+	}
+	return version, nil
 }
 
 func parseFlags(args []string) (*options, error) {
@@ -25,7 +45,6 @@ func parseFlags(args []string) (*options, error) {
 			continue
 		} else if args[i] == "-flags" {
 			return nil, fmt.Errorf("option '-flags' is deprecated. You can now pass all those flags directly to nix-build-uncached")
-
 		}
 		opts.installables = append(opts.installables, args[i])
 	}
@@ -43,8 +62,12 @@ func realMain(args []string) error {
 	if err != nil {
 		return fmt.Errorf("Value passed to -build-flags is not valid: %s", err)
 	}
+	version, err := getNixVersion()
+	if err != nil {
+		return fmt.Errorf("Failed to get nix version: %s", err)
+	}
 
-	if _, err := buildUncached(opts.installables, buildFlags); err != nil {
+	if _, err := buildUncached(opts.installables, buildFlags, version); err != nil {
 		return fmt.Errorf("%s", err)
 	}
 

@@ -4,7 +4,7 @@ let
 in
 pkgs.buildGoModule {
   pname = "nix-build-uncached";
-  version = "1.0.0";
+  version = "1.1.2";
   src = ./.;
 
   modSha256 = "1fl0wb1xj4v4whqm6ivzqjpac1iwpq7m12g37gr4fpgqp8kzi6cn";

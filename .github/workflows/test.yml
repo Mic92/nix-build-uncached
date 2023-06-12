@@ -13,7 +13,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Install nix
-      uses: cachix/install-nix-action@v20
+      uses: cachix/install-nix-action@v21
     - run:
         nix-build -I nixpkgs=https://github.com/NixOS/nixpkgs/archive/nixpkgs-unstable.tar.gz
     - run:

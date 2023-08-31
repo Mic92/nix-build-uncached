@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
@@ -50,6 +51,28 @@ func parseMissingDrvs(output *bytes.Buffer) map[string]bool {
 	}
 
 	return missingDrvs
+}
+
+func nixEvalInstallables(installables []string) ([]string, error) {
+	var out bytes.Buffer
+	args := append([]string{"derivation", "show"}, installables...)
+	cmd := Command("nix", args...)
+	cmd.Stdout = &out
+	if err := cmd.Run(); err != nil {
+		fmt.Fprint(os.Stderr, out.String())
+		return nil, err
+	}
+
+	m := map[string]json.RawMessage{}
+	if err := json.Unmarshal(out.Bytes(), &m); err != nil {
+		return nil, err
+	}
+
+	drvs := make([]string, 0, len(m))
+	for k, _ := range m {
+		drvs = append(drvs, k)
+	}
+	return drvs, nil
 }
 
 func nixDryBuild(buildArgs []string) (map[string]bool, error) {
@@ -130,7 +153,11 @@ func nixBuild(drvs map[string]bool, buildArgs []string, version nixVersion) erro
 	return nil
 }
 
-func buildUncached(installables []string, buildArgs []string, version nixVersion) ([]string, error) {
+func buildUncached(inputs []string, buildArgs []string, version nixVersion) ([]string, error) {
+	installables, err := nixEvalInstallables(inputs)
+	if err != nil {
+		return nil, fmt.Errorf("evaluating installables failed: %s", err)
+	}
 	missingDrvs, err := nixDryBuild(installables)
 	if err != nil {
 		return nil, fmt.Errorf("--dry-run failed: %s", err)

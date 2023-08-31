@@ -70,11 +70,10 @@ $ nix build --builders   /nix/store/s5alllpjx9fmdj26mf9cmxzs3xyxjn7f-hello-2.00.
 
 ### Flakes
 
-We cannot support flakes directly at the time because `nix-build` does
-not accept those and `nix build`'s `--no-dry-run` is broken.
-However it is possible to add a wrapper nix expression that imports a flake.
-The following example imports hydra jobs from a nix flake the same directory.
-It assumes that the flake also has `nixpkgs` in its inputs.
+Specific flake inputs are supported as they will be evaluated by `nix derivation
+show`. It is also possible to add a wrapper nix expression that imports a flake
+in its entirety: the following example imports hydra jobs from a nix flake the same
+directory. It assumes that the flake also has `nixpkgs` in its inputs.
 
 ```nix
 let

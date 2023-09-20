@@ -2,9 +2,9 @@
 
 **Deprecation** [nix-eval-jobs](https://github.com/nix-community/nix-eval-jobs)
 exposes the binary cache information now also in `--check-cache-status`, which
-allows to build a similar feature. Otherwise
-https://github.com/NixOS/nix/issues/3946 might track information about possible
-features in nix itself.
+allows to build a similar feature.
+[nix-fast-build](https://github.com/Mic92/nix-fast-build) uses nix-eval-jobs and exposes the `--skip-cached` flag to replace nix-build-uncached.
+Otherwise https://github.com/NixOS/nix/issues/3946 might track information about possible features in nix itself.
 
 ![Test](https://github.com/Mic92/nix-build-uncached/workflows/Test/badge.svg)
 
@@ -107,7 +107,6 @@ in (pkgs.callPackage ./force_cached.nix {}) {
   '';
 }
 ```
-
 
 ## Real-world examples
 

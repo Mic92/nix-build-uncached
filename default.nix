@@ -7,8 +7,7 @@ pkgs.buildGoModule {
   version = "1.1.2";
   src = ./.;
 
-  modSha256 = "1fl0wb1xj4v4whqm6ivzqjpac1iwpq7m12g37gr4fpgqp8kzi6cn";
-  vendorSha256 = null;
+  vendorHash = null;
 
   nativeBuildInputs = [ pkgs.makeWrapper pkgs.delve ];
 

@@ -12,7 +12,7 @@ jobs:
       - uses: actions/checkout@master
         with:
           fetch-depth: 0
-      - uses: cachix/install-nix-action@v25
+      - uses: cachix/install-nix-action@v26
       - name: Get release notes
         id: release-notes
         run: ./scripts/print-release-notes.sh ${{ github.ref }}

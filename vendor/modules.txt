@@ -1,3 +1,10 @@
 # github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
 ## explicit
 github.com/kballard/go-shellquote
+# github.com/tidwall/gjson v1.14.3
+## explicit
+github.com/tidwall/gjson
+# github.com/tidwall/match v1.1.1
+github.com/tidwall/match
+# github.com/tidwall/pretty v1.2.0
+github.com/tidwall/pretty

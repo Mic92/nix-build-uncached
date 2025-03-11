@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"regexp"
 
 	shellquote "github.com/kballard/go-shellquote"
 )
@@ -25,7 +26,9 @@ func getNixVersion() (nixVersion, error) {
 	if err := cmd.Run(); err != nil {
 		return version, err
 	}
-	_, err := fmt.Sscanf(outb.String(), "nix (Nix) %d.%d.%d", &version.Major, &version.Minor, &version.Patch)
+	regex := regexp.MustCompile(`nix \(.+\) (\d+.\d+.\d+)`)
+	res := regex.FindStringSubmatch(outb.String())
+	_, err := fmt.Sscanf(res[1], "%d.%d.%d", &version.Major, &version.Minor, &version.Patch)
 	if err != nil {
 		return version, err
 	}
